@@ -1,4 +1,4 @@
-import {TTTBoxState} from "../state/ttt-state-manager";
+import {O_BOX_STATE, TTTBoxState, TTTStateManager, X_BOX_STATE} from "../state/ttt-state-manager";
 
 
 export class AIPlayer {
@@ -9,7 +9,7 @@ export class AIPlayer {
         this.xOrO = xOrO;
     }
 
-    strengthOfBox(box, stateManager, depth) {
+    strengthOfBox(box, stateManager, depth, xOrO) {
         // returns the strength for a box given a state using minimax by considering all possible ways the game can go
         // and returns the best value for that move, assuming the opponent plays optimally
 
@@ -18,16 +18,42 @@ export class AIPlayer {
         const currentStateValue = stateManager.boardValueForPosition(this.xOrO); // 10 if player wins, -10 if player loses, else 0
 
         if (currentStateValue !== 0) {
-            // 10 or -10
+            // 10 or -10 or null
             // We have a winner!
             // We can stop iterating
-            return currentStateValue; // called a terminal state
+            if (depth === 0) {
+                return currentStateValue;
+            }
+            return currentStateValue / depth; // called a terminal state, divide by width because we want to consider "closer" depth scores as better
         }
 
-        return Math.max(stateManager.getPossibleMoves().map(newBox => {
+        const possibleMoves = stateManager.getPossibleMoves();
+        const aiPlayerAlias = this;
+
+        if (possibleMoves === 0) {
+            return 0;
+        }
+
+        const scoresOfChildren = possibleMoves.map(newBox => {
             const newState = stateManager.withBoxFilled(newBox, this.xOrO);
-            return this.strengthOfBox(newBox, newState, depth + 1)
-        }))
+            const newStateManager = new TTTStateManager(newState,() => {} )
+            const nextTurnXOrO =  xOrO === X_BOX_STATE? O_BOX_STATE: X_BOX_STATE
+            const strengthOfMove = aiPlayerAlias.strengthOfBox(newBox, newStateManager, depth + 1, nextTurnXOrO);
+            if (Number.isNaN(strengthOfMove)) {
+                return 0; // cat case
+            }
+            return strengthOfMove;
+        });
+
+        // if (this.xOrO !== xOrO) {
+        //     // Other players turn.
+        //     // const sumOfScores = scoresOfChildren.reduce((a, b) => a + b)
+        //     // return sumOfScores / scoresOfChildren.length;
+        //     return Math.min(scoresOfChildren)
+        // }
+
+        // But for AI, always play best possible way
+        return Math.max(scoresOfChildren);
     }
 
     // countLengthStringRecursive(s, i = 0) {

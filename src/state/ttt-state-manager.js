@@ -26,6 +26,7 @@ export class TTTBoxState {
         this.row = row;
         this.col = col;
         this.value = value;
+        this.boxStrength = 0;
     }
 }
 
@@ -245,12 +246,18 @@ export class TTTStateManager {
         const stateManagerAlias = this; // this can not be called in the scope of an arrow function, so we create an alias
 
         this.getPossibleMoves().map(possibleBox => {
-            const strengthOfBox = ai.strengthOfBox(possibleBox, stateManagerAlias, 0)
+            let strengthOfBox = ai.strengthOfBox(possibleBox, stateManagerAlias, 0, xOrO)
+            if (Number.isNaN(strengthOfBox)) {
+                strengthOfBox = 0;
+            }
 
             if (strengthOfBox > bestBoxStrength) {
                 bestBox = possibleBox;
                 bestBoxStrength = strengthOfBox;
             }
+
+            possibleBox.boxStrength = strengthOfBox;
+            // Normally, we would have to do state update here, but we know where we call this from, will do a state update right after this is called.
         })
 
         return bestBox

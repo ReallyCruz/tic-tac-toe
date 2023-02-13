@@ -14,12 +14,12 @@ function nextValue() {
     }
 }
 
-function valueToDisplayText(currentValue) {
-    if (currentValue === UNKNOWN_BOX_STATE) {
-        return ' '
-    } else if (currentValue === X_BOX_STATE) {
+function valueToDisplayText(boxState) {
+    if (boxState.value === UNKNOWN_BOX_STATE) {
+        return ' '//boxState.boxStrength
+    } else if (boxState.value === X_BOX_STATE) {
         return 'X'
-    } else if (currentValue === O_BOX_STATE) {
+    } else if (boxState.value === O_BOX_STATE) {
         return 'O'
     }
 }
@@ -50,14 +50,20 @@ export function TTTBox({className, stateManager, row, col}){
             })
 
             // box has been clicked, now it is opponents turn
-            const opponentXOrO = boxState.value === 'X'? 'O': 'X';
+            const opponentXOrO = nextValue();
             const bestOpponentMove = stateManager.bestMoveForPlayer(opponentXOrO);
-            const bestBoxInState = stateManager.state.board[bestOpponentMove.row][bestOpponentMove.col];
-            bestBoxInState.value = opponentXOrO;
+            nextValue();
             stateManager.setState({
                 ...stateManager.state,
-                updateReason: `Opponent Moved!!!`
+                updateReason: 'boxStrengths updated'
             })
+            // // TODO bestOpponentMove could be null, if boxClicked is clicked on the 9th box
+            // const bestBoxInState = stateManager.state.board[bestOpponentMove.row][bestOpponentMove.col];
+            // bestBoxInState.value = opponentXOrO;
+            // stateManager.setState({
+            //     ...stateManager.state,
+            //     updateReason: `Opponent Moved!!!`
+            // })
         }
     }
 
@@ -67,6 +73,6 @@ export function TTTBox({className, stateManager, row, col}){
     const finalClassName = `TicTacToeBox ${className}` + (isWinner? ' winner': '')
 
     return <button onClick={() => boxClicked(boxState, stateManager)} className={finalClassName}>
-        {valueToDisplayText(boxState.value)}
+        {valueToDisplayText(boxState)}
     </button>
 }
