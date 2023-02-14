@@ -52,18 +52,21 @@ export function TTTBox({className, stateManager, row, col}){
             // box has been clicked, now it is opponents turn
             const opponentXOrO = nextValue();
             const bestOpponentMove = stateManager.bestMoveForPlayer(opponentXOrO);
-            nextValue();
-            stateManager.setState({
-                ...stateManager.state,
-                updateReason: 'boxStrengths updated'
-            })
-            // // TODO bestOpponentMove could be null, if boxClicked is clicked on the 9th box
-            // const bestBoxInState = stateManager.state.board[bestOpponentMove.row][bestOpponentMove.col];
-            // bestBoxInState.value = opponentXOrO;
+            // nextValue();
             // stateManager.setState({
             //     ...stateManager.state,
-            //     updateReason: `Opponent Moved!!!`
+            //     updateReason: 'boxStrengths updated'
             // })
+            // // TODO bestOpponentMove could be null, if boxClicked is clicked on the 9th box
+            if (bestOpponentMove !== null) {
+                const bestBoxInState = stateManager.state.board[bestOpponentMove.row][bestOpponentMove.col];
+                bestBoxInState.value = opponentXOrO;
+                stateManager.setState({
+                    ...stateManager.state,
+                    updateReason: `Opponent Moved!!!`
+                })
+            }
+
         }
     }
 

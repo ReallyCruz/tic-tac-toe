@@ -215,10 +215,10 @@ export class TTTStateManager {
             const firstWinningBox = winningLine[0]
             if (firstWinningBox.value === xOrO) {
                 // We are the winner!
-                return 10;
+                return 1;
             } else {
                 // We are the loser!
-                return -10;
+                return -1;
             }
         } else {
             // No Winner
@@ -243,20 +243,34 @@ export class TTTStateManager {
     bestMoveForPlayer(xOrO) {
         const ai = new AIPlayer(xOrO);
 
-        let bestBox = null;
+        let bestBox = [];
         let bestBoxStrength = -Infinity;
-        const stateManagerAlias = this; // this can not be called in the scope of an arrow function, so we create an alias
+
 
         this.getPossibleMoves().map(possibleBox => {
-            let strengthOfBox = ai.minimax(stateManagerAlias, 0)
+            const newState = this.withBoxFilled(possibleBox, xOrO)
+            const newStateManager = new TTTStateManager(newState, () => {})
+
+            let strengthOfBox = ai.minimax(newStateManager, 0)
             if (strengthOfBox > bestBoxStrength) {
-                bestBox = possibleBox;
+                bestBox = [possibleBox];
                 bestBoxStrength = strengthOfBox;
+            } else if (strengthOfBox === bestBoxStrength) {
+                bestBox.push(possibleBox)
             }
 
             possibleBox.boxStrength = strengthOfBox;
             // Normally, we would have to do state update here, but we know where we call this from, will do a state update right after this is called.
         })
+
+        if (bestBox.length === 0) {
+            return null
+        } else if (bestBox.length === 1) {
+            return bestBox[0]
+        } else {
+            // return one random element from best boxes
+            return bestBox[Math.floor(Math.random() * bestBox.length)];
+        }
 
         return bestBox
     }

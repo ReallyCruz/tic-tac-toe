@@ -15,12 +15,16 @@ export class AIPlayer {
 
         if (currentStateStrength > 0) {
             // AI won
-            return currentStateStrength - depth;
+            return currentStateStrength / depth;
         } else if (currentStateStrength < 0) {
             // Player won
-            return currentStateStrength - depth;
+            return currentStateStrength / depth;
         } else if (possibleNextMoves.length === 0) {
             // Game is over, CAT!
+            return 0;
+        }
+
+        if (depth >= 4) {
             return 0;
         }
 
@@ -33,6 +37,7 @@ export class AIPlayer {
             const newState = stateManager.withBoxFilled(newBox, nextTurnXOrO)
             const newStateManager = new TTTStateManager(newState, () => {});
 
+            // recursive call
             const strengthOfMove = this.minimax(newStateManager, depth + 1)
 
             if (nextTurnXOrO === this.xOrO) {
@@ -43,10 +48,11 @@ export class AIPlayer {
                 }
             } else {
                 // This is the minimizer / opponent / real human. Assume they are going to play optimally.
-                if (bestBoxScore === null || strengthOfMove < bestBoxScore) {
-                    bestBox = newBox;
-                    bestBoxScore = strengthOfMove;
+                if (bestBoxScore === null) {
+                    bestBoxScore = 0;
                 }
+
+                bestBoxScore += (strengthOfMove) / possibleNextMoves.length;
             }
         })
 
