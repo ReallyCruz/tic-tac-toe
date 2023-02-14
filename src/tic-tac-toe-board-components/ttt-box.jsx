@@ -16,7 +16,7 @@ function nextValue() {
 
 function valueToDisplayText(boxState) {
     if (boxState.value === UNKNOWN_BOX_STATE) {
-        return ' '//boxState.boxStrength
+        return boxState.boxStrength
     } else if (boxState.value === X_BOX_STATE) {
         return 'X'
     } else if (boxState.value === O_BOX_STATE) {
@@ -69,8 +69,9 @@ export function TTTBox({className, stateManager, row, col}){
 
     const maybeWinners = stateManager.maybeGetWinners();
     let isWinner = isBoxWinner(boxState, maybeWinners);
+    const isUnknown = boxState.value === UNKNOWN_BOX_STATE;
 
-    const finalClassName = `TicTacToeBox ${className}` + (isWinner? ' winner': '')
+    const finalClassName = `TicTacToeBox ${className}` + (isWinner? ' winner': '') + (isUnknown? ' unknown' : '')
 
     return <button onClick={() => boxClicked(boxState, stateManager)} className={finalClassName}>
         {valueToDisplayText(boxState)}

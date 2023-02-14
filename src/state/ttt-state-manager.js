@@ -83,6 +83,7 @@ export function createNewInitialBoard(initial_value = UNKNOWN_BOX_STATE) {
 export function getInitialGameState() {
     return {
         board: createNewInitialBoard(), // array
+        lastPlayer: O_BOX_STATE,
         updateReason: ''
     }
 }
@@ -234,6 +235,7 @@ export class TTTStateManager {
         const newState = _.cloneDeep(this.state) // creates copy of this.state
 
         newState.board[box.row][box.col].value = xOrO;
+        newState.lastPlayer = xOrO;
 
         return newState;
     }
@@ -246,11 +248,7 @@ export class TTTStateManager {
         const stateManagerAlias = this; // this can not be called in the scope of an arrow function, so we create an alias
 
         this.getPossibleMoves().map(possibleBox => {
-            let strengthOfBox = ai.strengthOfBox(possibleBox, stateManagerAlias, 0, xOrO)
-            if (Number.isNaN(strengthOfBox)) {
-                strengthOfBox = 0;
-            }
-
+            let strengthOfBox = ai.minimax(stateManagerAlias, 0)
             if (strengthOfBox > bestBoxStrength) {
                 bestBox = possibleBox;
                 bestBoxStrength = strengthOfBox;
