@@ -90,3 +90,7 @@ code {
   color: var(--black-color);
   border-radius: calc(var(--button-font-size) / 2);
 }
+
+.unknown {
+  font-size: 20px;
+}

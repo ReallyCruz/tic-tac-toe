@@ -9,6 +9,50 @@ export class AIPlayer {
         this.xOrO = xOrO;
     }
 
+    minimax(stateManager, depth) {
+        const currentStateStrength = stateManager.boardValueForPosition(this.xOrO);
+        const possibleNextMoves = stateManager.getPossibleMoves();
+
+        if (currentStateStrength > 0) {
+            // AI won
+            return currentStateStrength - depth;
+        } else if (currentStateStrength < 0) {
+            // Player won
+            return currentStateStrength - depth;
+        } else if (possibleNextMoves.length === 0) {
+            // Game is over, CAT!
+            return 0;
+        }
+
+        const nextTurnXOrO =  stateManager.lastPlayer === X_BOX_STATE? O_BOX_STATE: X_BOX_STATE
+        let bestBox = null;
+        let bestBoxScore = null;
+
+        possibleNextMoves.map(newBox => {
+
+            const newState = stateManager.withBoxFilled(newBox, nextTurnXOrO)
+            const newStateManager = new TTTStateManager(newState, () => {});
+
+            const strengthOfMove = this.minimax(newStateManager, depth + 1)
+
+            if (nextTurnXOrO === this.xOrO) {
+                // This is the max calculation
+                if (bestBoxScore === null || strengthOfMove > bestBoxScore) {
+                    bestBox = newBox;
+                    bestBoxScore = strengthOfMove;
+                }
+            } else {
+                // This is the minimizer / opponent / real human. Assume they are going to play optimally.
+                if (bestBoxScore === null || strengthOfMove < bestBoxScore) {
+                    bestBox = newBox;
+                    bestBoxScore = strengthOfMove;
+                }
+            }
+        })
+
+        return bestBoxScore
+    }
+
     strengthOfBox(box, stateManager, depth, xOrO) {
         // returns the strength for a box given a state using minimax by considering all possible ways the game can go
         // and returns the best value for that move, assuming the opponent plays optimally
