@@ -43,30 +43,31 @@ export function TTTBox({className, stateManager, row, col}){
     function boxClicked() {
         if (boxState.value === UNKNOWN_BOX_STATE) {
             console.log('box clicked', boxState)
-            boxState.value = nextValue()
-            stateManager.setState({
-                ...stateManager.state,
-                updateReason: `Box was clicked row[${row}] col[${className}] value[${value}]`
-            })
+            const currentPlayerXOrO = nextValue();
+            boxState.value = currentPlayerXOrO;
 
             // box has been clicked, now it is opponents turn
             const opponentXOrO = nextValue();
-            const bestOpponentMove = stateManager.bestMoveForPlayer(opponentXOrO);
-            // nextValue();
-            // stateManager.setState({
-            //     ...stateManager.state,
-            //     updateReason: 'boxStrengths updated'
-            // })
-            // // TODO bestOpponentMove could be null, if boxClicked is clicked on the 9th box
+
+            // opponentPlaysOptimally is FALSE here because opponent here is HUMAN who might not play optimally
+            const bestOpponentMove = stateManager.bestMoveForPlayer(opponentXOrO, false);
+
             if (bestOpponentMove !== null) {
+                // If opponent has best move, set it! This is where the AI actually tells our board what the best move is
                 const bestBoxInState = stateManager.state.board[bestOpponentMove.row][bestOpponentMove.col];
                 bestBoxInState.value = opponentXOrO;
-                stateManager.setState({
-                    ...stateManager.state,
-                    updateReason: `Opponent Moved!!!`
-                })
             }
 
+            // Now, for fun, let's also calculate best move for the human player, and update those boxStrengths
+            // This function call will update box.boxStrength for each of the possible boxes
+
+            // opponentPlaysOptimally is TRUE here because opponent here is AI who WILL ALWAYS play optimally
+            stateManager.bestMoveForPlayer(currentPlayerXOrO, false);
+
+            stateManager.setState({
+                ...stateManager.state,
+                updateReason: `Box clicked, opponent moved, and calculated box strengths for player`
+            })
         }
     }
 
