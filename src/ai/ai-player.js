@@ -9,6 +9,16 @@ export class AIPlayer {
         this.xOrO = xOrO;
     }
 
+    /***
+     * Takes in a state, and returns the strength of that state.
+     *
+     * When this is called from the parent function, we fill in
+     * one new box in the newState
+     * @param stateManager
+     * @param depth
+     * @param opponentPlaysOptimally
+     * @returns {number|null}
+     */
     minimax(stateManager, depth, opponentPlaysOptimally) {
         const currentStateStrength = stateManager.boardValueForPosition(this.xOrO);
         const possibleNextMoves = stateManager.getPossibleMoves();

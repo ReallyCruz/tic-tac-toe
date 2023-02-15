@@ -62,7 +62,7 @@ export function TTTBox({className, stateManager, row, col}){
             // This function call will update box.boxStrength for each of the possible boxes
 
             // opponentPlaysOptimally is TRUE here because opponent here is AI who WILL ALWAYS play optimally
-            stateManager.bestMoveForPlayer(currentPlayerXOrO, false);
+            stateManager.bestMoveForPlayer(currentPlayerXOrO, true);
 
             stateManager.setState({
                 ...stateManager.state,
