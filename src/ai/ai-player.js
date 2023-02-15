@@ -9,7 +9,7 @@ export class AIPlayer {
         this.xOrO = xOrO;
     }
 
-    minimax(stateManager, depth) {
+    minimax(stateManager, depth, opponentPlaysOptimally) {
         const currentStateStrength = stateManager.boardValueForPosition(this.xOrO);
         const possibleNextMoves = stateManager.getPossibleMoves();
 
@@ -24,9 +24,9 @@ export class AIPlayer {
             return 0;
         }
 
-        if (depth >= 4) {
-            return 0;
-        }
+        // if (depth >= 4) {
+        //     return 0;
+        // }
 
         const nextTurnXOrO =  stateManager.lastPlayer === X_BOX_STATE? O_BOX_STATE: X_BOX_STATE
         let bestBox = null;
@@ -38,21 +38,37 @@ export class AIPlayer {
             const newStateManager = new TTTStateManager(newState, () => {});
 
             // recursive call
-            const strengthOfMove = this.minimax(newStateManager, depth + 1)
+            const strengthOfMove = this.minimax(newStateManager, depth + 1, opponentPlaysOptimally)
+            const isAITurn = nextTurnXOrO === this.xOrO;
 
-            if (nextTurnXOrO === this.xOrO) {
-                // This is the max calculation
-                if (bestBoxScore === null || strengthOfMove > bestBoxScore) {
+            if (bestBoxScore === null) {
+                if (isAITurn) {
+                    // -1 is lowest possible score for AI, since AI is maximizer
+                    bestBoxScore = -1;
+                } else {
+                    // 1 is "lowest" possible score for opponent, since opponent is minimizer
+                    bestBoxScore = 1;
+                }
+            }
+
+            if (isAITurn) {
+                // This is the max calculation aka the "AI"
+                if (strengthOfMove > bestBoxScore) {
                     bestBox = newBox;
                     bestBoxScore = strengthOfMove;
                 }
             } else {
-                // This is the minimizer / opponent / real human. Assume they are going to play optimally.
-                if (bestBoxScore === null) {
-                    bestBoxScore = 0;
+                // This is the opponent
+                if (opponentPlaysOptimally) {
+                    // opponent will always pick optimal move
+                    // Since this is opponent, they are the "minimizer" so we flip the > to <
+                    if (strengthOfMove < bestBoxScore) {
+                        bestBox = newBox
+                        bestBoxScore = strengthOfMove
+                    }
+                } else {
+                    bestBoxScore += (strengthOfMove) / possibleNextMoves.length;
                 }
-
-                bestBoxScore += (strengthOfMove) / possibleNextMoves.length;
             }
         })
 

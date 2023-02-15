@@ -240,18 +240,17 @@ export class TTTStateManager {
         return newState;
     }
 
-    bestMoveForPlayer(xOrO) {
+    bestMoveForPlayer(xOrO, opponentPlaysOptimally = false) {
         const ai = new AIPlayer(xOrO);
 
         let bestBox = [];
         let bestBoxStrength = -Infinity;
 
-
         this.getPossibleMoves().map(possibleBox => {
             const newState = this.withBoxFilled(possibleBox, xOrO)
             const newStateManager = new TTTStateManager(newState, () => {})
 
-            let strengthOfBox = ai.minimax(newStateManager, 0)
+            let strengthOfBox = ai.minimax(newStateManager, 0, opponentPlaysOptimally)
             if (strengthOfBox > bestBoxStrength) {
                 bestBox = [possibleBox];
                 bestBoxStrength = strengthOfBox;
@@ -271,8 +270,6 @@ export class TTTStateManager {
             // return one random element from best boxes
             return bestBox[Math.floor(Math.random() * bestBox.length)];
         }
-
-        return bestBox
     }
 }
 
